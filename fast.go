@@ -18,6 +18,12 @@ func init() {
 	r = regexp.MustCompile("@")
 }
 
+type userType struct {
+	Browsers []string `json:"browsers"`
+	Email string `json:"email"`
+	Name string `json:"name"`
+}
+
 // вам надо написать более быструю оптимальную этой функции
 func FastSearch(out io.Writer) {
 	file, err := os.Open(filePath)
@@ -36,9 +42,9 @@ func FastSearch(out io.Writer) {
 
 	lines := strings.Split(string(fileContents), "\n")
 
-	users := make([]map[string]interface{}, 0, len(lines))
+	users := make([]userType, 0, len(lines))
 	for _, line := range lines {
-		user := make(map[string]interface{})
+		var user userType
 		// fmt.Printf("%v %v\n", err, line)
 		err := json.Unmarshal([]byte(line), &user)
 		if err != nil {
@@ -52,19 +58,7 @@ func FastSearch(out io.Writer) {
 		isAndroid := false
 		isMSIE := false
 
-		browsers, ok := user["browsers"].([]interface{})
-		if !ok {
-			// log.Println("cant cast browsers")
-			continue
-		}
-
-		for _, browserRaw := range browsers {
-			browser, ok := browserRaw.(string)
-			if !ok {
-				// log.Println("cant cast browser to string")
-				continue
-			}
-
+		for _, browser := range user.Browsers {
 			if strings.Contains(browser, "Android") {
 				isAndroid = true
 				notSeenBefore := true
@@ -100,8 +94,8 @@ func FastSearch(out io.Writer) {
 		}
 
 		// log.Println("Android and MSIE user:", user["name"], user["email"])
-		email := r.ReplaceAllString(user["email"].(string), " [at] ")
-		foundUsers += fmt.Sprintf("[%d] %s <%s>\n", i, user["name"], email)
+		email := r.ReplaceAllString(user.Email, " [at] ")
+		foundUsers += fmt.Sprintf("[%d] %s <%s>\n", i, user.Name, email)
 	}
 
 	fmt.Fprintln(out, "found users:\n"+foundUsers)
