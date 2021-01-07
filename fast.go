@@ -36,53 +36,39 @@ func FastSearch(out io.Writer) {
 		panic(err)
 	}
 
-	seenBrowsers := []string{}
+	seenBrowsers := map[string]bool{}
 	uniqueBrowsers := 0
 	foundUsers := ""
 
 	lines := strings.Split(string(fileContents), "\n")
 
-	users := make([]userType, 0, len(lines))
-	for _, line := range lines {
+	for i, line := range lines {
 		var user userType
 		// fmt.Printf("%v %v\n", err, line)
 		err := json.Unmarshal([]byte(line), &user)
 		if err != nil {
 			panic(err)
 		}
-		users = append(users, user)
-	}
 
-	for i, user := range users {
-
+		// data logic
 		isAndroid := false
 		isMSIE := false
 
 		for _, browser := range user.Browsers {
 			if strings.Contains(browser, "Android") {
 				isAndroid = true
-				notSeenBefore := true
-				for _, item := range seenBrowsers {
-					if item == browser {
-						notSeenBefore = false
-					}
-				}
-				if notSeenBefore {
+
+				if seen := seenBrowsers[browser]; !seen {
 					// log.Printf("SLOW New browser: %s, first seen: %s", browser, user["name"])
-					seenBrowsers = append(seenBrowsers, browser)
+					seenBrowsers[browser] = true
 					uniqueBrowsers++
 				}
+
 			} else if strings.Contains(browser, "MSIE") {
 				isMSIE = true
-				notSeenBefore := true
-				for _, item := range seenBrowsers {
-					if item == browser {
-						notSeenBefore = false
-					}
-				}
-				if notSeenBefore {
+				if seen := seenBrowsers[browser]; !seen {
 					// log.Printf("SLOW New browser: %s, first seen: %s", browser, user["name"])
-					seenBrowsers = append(seenBrowsers, browser)
+					seenBrowsers[browser] = true
 					uniqueBrowsers++
 				}
 			}
