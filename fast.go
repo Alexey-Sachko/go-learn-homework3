@@ -12,6 +12,12 @@ import (
 
 func main() {}
 
+var r *regexp.Regexp
+
+func init() {
+	r = regexp.MustCompile("@")
+}
+
 // вам надо написать более быструю оптимальную этой функции
 func FastSearch(out io.Writer) {
 	file, err := os.Open(filePath)
@@ -24,7 +30,6 @@ func FastSearch(out io.Writer) {
 		panic(err)
 	}
 
-	r := regexp.MustCompile("@")
 	seenBrowsers := []string{}
 	uniqueBrowsers := 0
 	foundUsers := ""
@@ -59,7 +64,8 @@ func FastSearch(out io.Writer) {
 				// log.Println("cant cast browser to string")
 				continue
 			}
-			if ok, err := regexp.MatchString("Android", browser); ok && err == nil {
+
+			if ok := strings.Contains(browser, "Android"); ok {
 				isAndroid = true
 				notSeenBefore := true
 				for _, item := range seenBrowsers {
@@ -81,7 +87,8 @@ func FastSearch(out io.Writer) {
 				// log.Println("cant cast browser to string")
 				continue
 			}
-			if ok, err := regexp.MatchString("MSIE", browser); ok && err == nil {
+
+			if ok := strings.Contains(browser, "MSIE"); ok {
 				isMSIE = true
 				notSeenBefore := true
 				for _, item := range seenBrowsers {
