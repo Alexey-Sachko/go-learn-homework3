@@ -36,7 +36,7 @@ func FastSearch(out io.Writer) {
 
 	lines := strings.Split(string(fileContents), "\n")
 
-	users := make([]map[string]interface{}, 0)
+	users := make([]map[string]interface{}, 0, len(lines))
 	for _, line := range lines {
 		user := make(map[string]interface{})
 		// fmt.Printf("%v %v\n", err, line)
@@ -65,7 +65,7 @@ func FastSearch(out io.Writer) {
 				continue
 			}
 
-			if ok := strings.Contains(browser, "Android"); ok {
+			if strings.Contains(browser, "Android") {
 				isAndroid = true
 				notSeenBefore := true
 				for _, item := range seenBrowsers {
@@ -78,17 +78,7 @@ func FastSearch(out io.Writer) {
 					seenBrowsers = append(seenBrowsers, browser)
 					uniqueBrowsers++
 				}
-			}
-		}
-
-		for _, browserRaw := range browsers {
-			browser, ok := browserRaw.(string)
-			if !ok {
-				// log.Println("cant cast browser to string")
-				continue
-			}
-
-			if ok := strings.Contains(browser, "MSIE"); ok {
+			} else if strings.Contains(browser, "MSIE") {
 				isMSIE = true
 				notSeenBefore := true
 				for _, item := range seenBrowsers {
@@ -103,6 +93,7 @@ func FastSearch(out io.Writer) {
 				}
 			}
 		}
+
 
 		if !(isAndroid && isMSIE) {
 			continue
