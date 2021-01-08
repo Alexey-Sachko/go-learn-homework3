@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	types "coursera/hw3_bench/types"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -16,12 +16,6 @@ var r *regexp.Regexp
 
 func init() {
 	r = regexp.MustCompile("@")
-}
-
-type userType struct {
-	Browsers []string `json:"browsers"`
-	Email string `json:"email"`
-	Name string `json:"name"`
 }
 
 // вам надо написать более быструю оптимальную этой функции
@@ -43,9 +37,10 @@ func FastSearch(out io.Writer) {
 	lines := strings.Split(string(fileContents), "\n")
 
 	for i, line := range lines {
-		var user userType
+		user := types.UserInfo{} 
 		// fmt.Printf("%v %v\n", err, line)
-		err := json.Unmarshal([]byte(line), &user)
+
+		err := user.UnmarshalJSON([]byte(line))
 		if err != nil {
 			panic(err)
 		}
@@ -73,7 +68,6 @@ func FastSearch(out io.Writer) {
 				}
 			}
 		}
-
 
 		if !(isAndroid && isMSIE) {
 			continue
